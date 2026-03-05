@@ -1,0 +1,30 @@
+# Ambiente virtual
+venv/
+.env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+
+# Logs
+*.log
+logs/
+
+# Dados grandes
+dados/
+data/
+*.parquet
+
+# Spark
+spark-warehouse/
+metastore_db/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
