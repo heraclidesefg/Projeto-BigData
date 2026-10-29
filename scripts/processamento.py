@@ -1,44 +1,81 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import avg, sum, count
+from pyspark.sql.functions import avg, count, sum, round
 
-# Criar sessão Spark
+#===================================================
+# 1- Criando SparkSession
+#===================================================
 spark = SparkSession.builder \
     .appName("BigData_FoodDelivery") \
+    .master("local[*]") \
     .getOrCreate()
 
-print("Spark funcionando!")
+#===================================================
+# 2- Caminho do arquivo
+#===================================================
 
-
-# Caminho do arquivo
 caminho_arquivo = "dados/dados_loja_fooddelivery.csv"
 
-# Leitura do CSV (atenção ao separador ;)
+#===================================================
+# 3- Leitura do CSV (atenção ao separador ;)
+#===================================================
+
 df = spark.read \
     .option("header", True) \
     .option("inferSchema", True) \
     .option("sep", ";") \
     .csv(caminho_arquivo)
 
-# Visualizar dados
+#===================================================
+# 4- Visualizar estrutura dos dados
+#===================================================
+print("\nPrimeiros registros:")   
 df.show(5)
 
-# Estrutura
+print("\n Estrutura do DataFrame")
 df.printSchema()
 
-# ------------------------------
-# ANÁLISES BIG DATA
-# ------------------------------
+#===================================================
+# 4. Quantidade total de registros
+#===================================================
 
-# 1️⃣ Total de pedidos por cidade
+total_registros = df.count()
+print(f"\nTotal de registros: {total_registros}")
+
+#===================================================
+# 5. Análise simples (Big Data na prática)
+#===================================================
+
+#===================================================
+# Total de vendas por restaurante
+#===================================================
+
+print("\nTotal de vendas por restaurante:")
+df.groupBy("restaurante") \
+  .agg(count("*").alias("QTD_Vendas")) \
+  .show()
+
+#===================================================
+# Valor médio das vendas
+#===================================================
+
+print("\nValor médio das vendas:")
+#df.select(avg("valor_pedido", 2).alias("media_vendas")).show()
+df.select(round(avg("valor_pedido"), 2).alias("media_vendas")).show()
+
+#===================================================
+#  Total de pedidos por cidade
+#===================================================
 pedidos_cidade = df.groupBy("cidade").agg(
     count("*").alias("total_pedidos"),
-    sum("valor_pedido").alias("valor_total"),
-    avg("tempo_entrega_min").alias("tempo_medio_entrega")
+    round(sum("valor_pedido"),2).alias("valor_total"),
+    round(avg("tempo_entrega_min"),2).alias("tempo_medio_entrega")
 )
 
 pedidos_cidade.show()
 
-# 2️⃣ Desempenho por restaurante
+#===================================================
+# Desempenho por restaurante
+#===================================================
 restaurantes = df.groupBy("restaurante").agg(
     count("*").alias("qtd_pedidos"),
     avg("avaliacao_cliente").alias("avaliacao_media"),
@@ -47,22 +84,8 @@ restaurantes = df.groupBy("restaurante").agg(
 
 restaurantes.show()
 
-# 3️⃣ Análise via Spark SQL
-df.createOrReplaceTempView("pedidos")
-
-resultado_sql = spark.sql("""
-    SELECT
-        cidade,
-        COUNT(*) AS total_pedidos,
-        ROUND(AVG(valor_pedido),2) AS ticket_medio,
-        ROUND(AVG(avaliacao_cliente),2) AS avaliacao_media
-    FROM pedidos
-    WHERE status = 'Entregue'
-    GROUP BY cidade
-    ORDER BY total_pedidos DESC
-""")
-
-resultado_sql.show()
-
-# Finalizar Spark
+#===================================================    
+# Finalizando o spark
+#===================================================
 spark.stop()
+

@@ -1,4 +1,4 @@
-# Projeto de Big Data com PySpark – Análise de Dados de Food Delivery
+# Projeto de Big Data com PySpark 
 
 ## 📊 Descrição do Projeto
 
@@ -231,6 +231,7 @@ Projeto desenvolvido para fins educacionais na disciplina:
 
 **Ecossistema de Big Data**
 Curso: **Ciência de Dados**
+Professor: **Heraclides Mourão**
 
 ---
 

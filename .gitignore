@@ -17,6 +17,9 @@ __pycache__/
 logs/
 
 # Dados grandes
+dados/
+data/
+*.parquet
 
 # Spark
 spark-warehouse/
